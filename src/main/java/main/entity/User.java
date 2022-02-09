@@ -11,9 +11,6 @@ public class User implements UserDetails {
     private UUID id;
     private String mail, password_hash, role;
 
-    public User() {
-    }
-
     public UUID getId() {
         return id;
     }

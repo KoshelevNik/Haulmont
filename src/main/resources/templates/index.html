@@ -5,6 +5,6 @@
     <title>Bank</title>
 </head>
 <body>
-<h1 th:text="${lol}"></h1>
+<h1 th:each="v : ${lol}" th:text="${v.getMail()}"></h1>
 </body>
 </html>
