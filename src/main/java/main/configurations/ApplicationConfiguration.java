@@ -1,8 +1,8 @@
 package main.configurations;
 
-import main.dao.LolDAO;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -13,11 +13,11 @@ public class ApplicationConfiguration {
 
     @Bean
     public Connection connection() throws SQLException {
-        return DriverManager.getConnection("jdbc:hsqldb:file:database/AZAZA");
+        return DriverManager.getConnection("jdbc:hsqldb:file:database/data");
     }
 
     @Bean
-    public LolDAO lolDAO() {
-        return new LolDAO();
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

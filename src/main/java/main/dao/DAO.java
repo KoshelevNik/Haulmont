@@ -1,12 +1,13 @@
 package main.dao;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface DAO<E, ID> {
 
     void create(E t);
 
-    E read(ID id);
+    Optional<E> read(ID id);
 
     void update(E t);
 

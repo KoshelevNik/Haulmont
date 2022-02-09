@@ -1,15 +1,13 @@
 package main.controller;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-public class MainController {
+public class LogController {
 
-    @GetMapping("/")
-    public String indexGET(Model model) {
-
-        return "index";
+    @GetMapping("/login")
+    public String loginGET() {
+        return "login";
     }
 }
