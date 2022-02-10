@@ -43,7 +43,6 @@ public class CreditDAO implements DAO<Credit, UUID> {
             credit.setLimit(resultSet.getInt("limit"));
             return Optional.of(credit);
         } catch (SQLException e) {
-            e.printStackTrace();
             return Optional.empty();
         }
     }

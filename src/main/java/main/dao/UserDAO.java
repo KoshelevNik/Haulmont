@@ -42,7 +42,6 @@ public class UserDAO implements DAO<User, UUID> {
             user.setRole(resultSet.getString("role"));
             return Optional.of(user);
         } catch (SQLException e) {
-            e.printStackTrace();
             return Optional.empty();
         }
     }

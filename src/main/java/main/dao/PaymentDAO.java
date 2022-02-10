@@ -20,7 +20,7 @@ public class PaymentDAO implements DAO<Payment, UUID> {
     public void create(Payment t) {
         try {
             DateFormat dt = new SimpleDateFormat("yyyy-MM-dd");
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO payment VALUES (?, ?, ?, ?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO payment VALUES (?, ?, ?, ?, ?)");
             preparedStatement.setString(1, dt.format(t.getPayment_date().getTime()));
             preparedStatement.setInt(2, t.getPayment_amount());
             preparedStatement.setInt(3, t.getCredit_body());

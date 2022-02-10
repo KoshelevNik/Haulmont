@@ -45,7 +45,6 @@ public class ClientDAO implements DAO<Client, UUID> {
             client.setPassport_id(resultSet.getInt("passport_id"));
             return Optional.of(client);
         } catch (SQLException e) {
-            e.printStackTrace();
             return Optional.empty();
         }
     }

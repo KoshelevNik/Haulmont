@@ -42,7 +42,6 @@ public class BankDAO implements DAO<Bank, Bank.BankId> {
             bank.setBankId(bankId);
             return Optional.of(bank);
         } catch (SQLException e) {
-            e.printStackTrace();
             return Optional.empty();
         }
     }
