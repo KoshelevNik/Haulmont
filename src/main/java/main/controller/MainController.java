@@ -1,35 +1,20 @@
 package main.controller;
 
-import main.dao.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import main.entity.User;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.security.Principal;
+
 @Controller
 public class MainController {
 
-    @Autowired
-    private UserDAO userDAO;
-
-    @Autowired
-    private ClientDAO clientDAO;
-
-    @Autowired
-    private CreditDAO creditDAO;
-
-    @Autowired
-    private PaymentDAO paymentDAO;
-
-    @Autowired
-    private BankDAO bankDAO;
-
-    @Autowired
-    private LoanOfferDAO loanOfferDAO;
-
     @GetMapping("/")
-    public String indexGET(Model model) {
-
+    public String indexGET(Model model, Principal principal) {
+        User user = (User) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+        model.addAttribute("lol", user.getMail());
         return "index";
     }
 }

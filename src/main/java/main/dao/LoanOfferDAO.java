@@ -1,12 +1,13 @@
 package main.dao;
 
-import main.entity.Bank;
 import main.entity.LoanOffer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.sql.*;
 import java.util.*;
 
+@Component
 public class LoanOfferDAO implements DAO<LoanOffer, LoanOffer.LoanOfferId> {
 
     @Autowired

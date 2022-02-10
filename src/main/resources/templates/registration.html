@@ -1,19 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org/">
 <head>
     <meta charset="UTF-8">
     <title>Bank</title>
 </head>
 <body>
+
     <form method="post" action="/registration">
-        <input type="text" name="username" placeholder="Имя пользователя">
+        <input type="text" name="username" placeholder="Имя пользователя"
+               th:value="${usernameValue}">
+        <span th:text="${usernameError}"></span>
         <br>
-        <input type="email" name="mail" placeholder="Почта">
+        <input type="email" name="mail" placeholder="Почта"
+               th:value="${mailValue}">
+        <span th:text="${mailError}"></span>
         <br>
-        <input type="password" name="password" placeholder="Пароль">
+        <input type="tel" name="phone" placeholder="Телефон"
+               th:value="${phoneValue}">
+        <span th:text="${phoneError}"></span>
         <br>
-        <input type="password" name="confirm" placeholder="Подтверждение">
+        <input type="number" name="passport_id" placeholder="Номер паспорта"
+               th:value="${passportIdValue}">
+        <span th:text="${passportIdError}"></span>
         <br>
+
+        <input type="password" name="password" placeholder="Пароль"
+               th:value="${passwordValue}">
+        <span th:text="${passwordError}"></span>
+        <br>
+        <input type="password" name="confirm" placeholder="Подтверждение"
+               th:value="${confirmValue}">
+        <span th:text="${confirmError}"></span>
+        <br>
+
         <input type="submit" value="Зарегистрировать">
     </form>
 </body>

@@ -2,6 +2,7 @@ package main.dao;
 
 import main.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Component
 public class UserDAO implements DAO<User, UUID> {
 
     @Autowired

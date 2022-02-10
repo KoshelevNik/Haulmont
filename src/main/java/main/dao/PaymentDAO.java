@@ -2,6 +2,7 @@ package main.dao;
 
 import main.entity.Payment;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,6 +12,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+@Component
 public class PaymentDAO implements DAO<Payment, UUID> {
 
     @Autowired
