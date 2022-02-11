@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org/">
 <head>
     <meta charset="UTF-8">
     <title>Bank</title>
 </head>
 <body>
+    <p th:text="${error}"></p>
     <form method="post" action="/login">
         <input type="text" name="username" placeholder="Ваша почта">
         <br>

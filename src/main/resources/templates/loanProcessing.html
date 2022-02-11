@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/">
+<head>
+    <meta charset="UTF-8">
+    <title>Bank</title>
+</head>
+<body>
+<form method="post" action="/loanProcessing">
+    <select name="creditName">
+        <option></option>
+    </select>
+    <input type="number" name="creditAmount" placeholder="Сумма кредита">
+    <span></span>
+    <br>
+    <input type="date" name="creditDate" placeholder="Дата выдачи">
+    <span></span>
+    <br>
+    <input type="number" name="time" placeholder="Срок (кол-во лет)">
+    <span></span>
+    <br>
+    <input type="number" name="interestRate" placeholder="Процентная ставка">
+    <span></span>
+    <br>
+    <select name="creditType">
+        <option>Аннуитетный</option>
+        <option>Дифференцированный</option>
+    </select>
+    <br>
+    <input type="submit" name="paymentsGraph" value="График платежей">
+    <br>
+    <input type="submit" name="registration" value="Оформить">
+</form>
+</body>
+</html>

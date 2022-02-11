@@ -22,10 +22,11 @@ public class CreditDAO implements DAO<Credit, UUID> {
     @Override
     public void create(Credit t) {
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO credit VALUES (?, ?, ?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO credit VALUES (?, ?, ?, ?)");
             preparedStatement.setString(1, t.getId().toString());
             preparedStatement.setInt(2, t.getLimit());
             preparedStatement.setFloat(3, t.getInterest_rate());
+            preparedStatement.setString(4, t.getName());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -43,6 +44,7 @@ public class CreditDAO implements DAO<Credit, UUID> {
             credit.setId(uuid);
             credit.setInterest_rate(resultSet.getFloat("interest_rate"));
             credit.setLimit(resultSet.getInt("limit"));
+            credit.setName(resultSet.getString("name"));
             return Optional.of(credit);
         } catch (SQLException e) {
             return Optional.empty();
@@ -52,10 +54,11 @@ public class CreditDAO implements DAO<Credit, UUID> {
     @Override
     public void update(Credit t) {
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE credit SET limit=?, interest_rate=? WHERE id=?");
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE credit SET limit=?, interest_rate=?, name=? WHERE id=?");
             preparedStatement.setInt(1, t.getLimit());
             preparedStatement.setFloat(2, t.getInterest_rate());
-            preparedStatement.setString(3, t.getId().toString());
+            preparedStatement.setString(3, t.getName());
+            preparedStatement.setString(4, t.getId().toString());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -85,6 +88,7 @@ public class CreditDAO implements DAO<Credit, UUID> {
                 credit.setId(UUID.fromString(resultSet.getString("id")));
                 credit.setLimit(resultSet.getInt("limit"));
                 credit.setInterest_rate(resultSet.getFloat("interest_rate"));
+                credit.setName(resultSet.getString("name"));
                 creditList.add(credit);
             }
         } catch (SQLException e) {

@@ -7,6 +7,15 @@ public class Credit {
     private UUID id;
     private Integer limit;
     private Float interest_rate;
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public UUID getId() {
         return id;

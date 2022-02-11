@@ -5,6 +5,31 @@
     <title>Bank</title>
 </head>
 <body>
-<h1 th:text="${lol}"></h1>
+
+<div th:if="${user.getRole().equals('user')}">
+    <a href="/profile">Мой профиль</a>
+    <form method="post" action="/">
+        <input type="text" placeholder="Поиск..." name="creditName">
+        <input type="submit" name="search">
+
+        <div>
+            <p></p>
+            <span></span>
+            <span></span>
+        </div>
+
+    </form>
+</div>
+
+<div th:if="${user.getRole().equals('admin')}">
+    <a href="/clients">Пользователи</a>
+    <a href="/loanOffers">Корзина</a>
+    <a href="/loanOffers">Подтвержденные</a>
+    <a href="/credits">Кредиты</a>
+    <form method="post" action="/">
+
+    </form>
+</div>
+
 </body>
 </html>
