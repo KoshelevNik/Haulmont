@@ -22,12 +22,13 @@ public class PaymentDAO implements DAO<Payment, UUID> {
     public void create(Payment t) {
         try {
             DateFormat dt = new SimpleDateFormat("yyyy-MM-dd");
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO payment VALUES (?, ?, ?, ?, ?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO payment VALUES (?, ?, ?, ?, ?, ?)");
             preparedStatement.setString(1, dt.format(t.getPayment_date().getTime()));
             preparedStatement.setInt(2, t.getPayment_amount());
             preparedStatement.setInt(3, t.getCredit_body());
             preparedStatement.setInt(4, t.getPercent());
             preparedStatement.setString(5, t.getId().toString());
+            preparedStatement.setInt(6, t.getRemainder());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -48,9 +49,9 @@ public class PaymentDAO implements DAO<Payment, UUID> {
             payment.setPayment_amount(resultSet.getInt("payment_amount"));
             payment.setCredit_body(resultSet.getInt("credit_body"));
             payment.setPercent(resultSet.getInt("percent"));
+            payment.setRemainder(resultSet.getInt("remainder"));
             return Optional.of(payment);
         } catch (SQLException e) {
-            e.printStackTrace();
             return Optional.empty();
         }
     }
@@ -59,12 +60,13 @@ public class PaymentDAO implements DAO<Payment, UUID> {
     public void update(Payment t) {
         try {
             DateFormat dt = new SimpleDateFormat("yyyy-MM-dd");
-            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE payment SET payment_date=?, payment_amount=?, credit_body=?, percent=? WHERE id=?");
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE payment SET payment_date=?, payment_amount=?, credit_body=?, percent=?, remainder=? WHERE id=?");
             preparedStatement.setString(1, dt.format(t.getPayment_date().getTime()));
             preparedStatement.setInt(2, t.getPayment_amount());
             preparedStatement.setInt(3, t.getCredit_body());
             preparedStatement.setInt(4, t.getPercent());
-            preparedStatement.setString(5, t.getId().toString());
+            preparedStatement.setInt(5, t.getRemainder());
+            preparedStatement.setString(6, t.getId().toString());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -97,6 +99,7 @@ public class PaymentDAO implements DAO<Payment, UUID> {
                 payment.setPayment_amount(resultSet.getInt("payment_amount"));
                 payment.setCredit_body(resultSet.getInt("credit_body"));
                 payment.setPercent(resultSet.getInt("percent"));
+                payment.setRemainder(resultSet.getInt("remainder"));
                 paymentList.add(payment);
             }
         } catch (SQLException e) {

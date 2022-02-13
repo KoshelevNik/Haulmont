@@ -16,7 +16,7 @@ public class LoanOfferDAO implements DAO<LoanOffer, LoanOffer.LoanOfferId> {
     @Override
     public void create(LoanOffer t) {
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO loan_offer VALUES (?, ?, ?, ?, ?, ?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO loan_offer VALUES (?, ?, ?, ?, ?, ?, ?)");
             preparedStatement.setString(1, t.getLoanOfferId().client_id().toString());
             preparedStatement.setString(2, t.getLoanOfferId().credit_id().toString());
             preparedStatement.setInt(3, t.getCredit_amount());
@@ -29,6 +29,7 @@ public class LoanOfferDAO implements DAO<LoanOffer, LoanOffer.LoanOfferId> {
                 preparedStatement.setBoolean(6, t.getAdmin_confirm());
             else
                 preparedStatement.setNull(6, Types.BOOLEAN);
+            preparedStatement.setFloat(7, t.getInterest_rate());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -46,6 +47,7 @@ public class LoanOfferDAO implements DAO<LoanOffer, LoanOffer.LoanOfferId> {
             LoanOffer loanOffer = new LoanOffer();
             loanOffer.setLoanOfferId(loanOfferId);
             loanOffer.setCredit_amount(resultSet.getInt("credit_amount"));
+            loanOffer.setInterest_rate(resultSet.getFloat("interest_rate"));
             ResultSet rs = resultSet.getArray("payments_graph").getResultSet();
             List<UUID> payments_graph = new ArrayList<>();
             while (!rs.isLast()) {
@@ -66,7 +68,7 @@ public class LoanOfferDAO implements DAO<LoanOffer, LoanOffer.LoanOfferId> {
     @Override
     public void update(LoanOffer t) {
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE loan_offer SET credit_amount=?, payments_graph=?, client_confirm=?, admin_confirm=? WHERE client_id=? AND credit_id=?");
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE loan_offer SET credit_amount=?, payments_graph=?, client_confirm=?, admin_confirm=?, interest_rate=? WHERE client_id=? AND credit_id=?");
             preparedStatement.setInt(1, t.getCredit_amount());
             preparedStatement.setArray(2, connection.createArrayOf("UUID", t.getPayments_graph()));
             if (t.getClient_confirm() != null)
@@ -77,8 +79,10 @@ public class LoanOfferDAO implements DAO<LoanOffer, LoanOffer.LoanOfferId> {
                 preparedStatement.setBoolean(4, t.getAdmin_confirm());
             else
                 preparedStatement.setNull(4, Types.BOOLEAN);
-            preparedStatement.setString(5, t.getLoanOfferId().client_id().toString());
-            preparedStatement.setString(6, t.getLoanOfferId().credit_id().toString());
+            preparedStatement.setFloat(5, t.getInterest_rate());
+            preparedStatement.setString(6, t.getLoanOfferId().client_id().toString());
+            preparedStatement.setString(7, t.getLoanOfferId().credit_id().toString());
+
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -113,6 +117,7 @@ public class LoanOfferDAO implements DAO<LoanOffer, LoanOffer.LoanOfferId> {
                         )
                 );
                 loanOffer.setCredit_amount(resultSet.getInt("credit_amount"));
+                loanOffer.setInterest_rate(resultSet.getFloat("interest_rate"));
                 ResultSet rs = resultSet.getArray("payments_graph").getResultSet();
                 List<UUID> payments_graph = new ArrayList<>();
                 while (!rs.isLast()) {

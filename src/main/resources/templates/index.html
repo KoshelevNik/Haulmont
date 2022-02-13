@@ -5,17 +5,19 @@
     <title>Bank</title>
 </head>
 <body>
+<a href="logout">Выйти</a>
 
 <div th:if="${user.getRole().equals('user')}">
     <a href="/profile">Мой профиль</a>
     <form method="post" action="/">
         <input type="text" placeholder="Поиск..." name="creditName">
-        <input type="submit" name="search">
+        <input type="submit" name="search" value="Найти">
 
-        <div>
-            <p></p>
-            <span></span>
-            <span></span>
+        <div th:each="v : ${creditList}">
+            <p th:text="${v.getName()}"></p>
+            <span th:text="${'Лимит: ' + v.getLimit() + 'руб.; '}"></span>
+            <span th:text="${'Процентная ставка: ' + v.getInterest_rate() + '%'}"></span>
+            <input type="submit" th:name="${'id=' + v.getId().toString()}" value="Выбрать">
         </div>
 
     </form>

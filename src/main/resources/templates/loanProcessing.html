@@ -6,20 +6,21 @@
 </head>
 <body>
 <form method="post" action="/loanProcessing">
-    <select name="creditName">
+    <select th:if="${showCreditNameSelect}" name="creditName">
         <option></option>
     </select>
-    <input type="number" name="creditAmount" placeholder="Сумма кредита">
-    <span></span>
+    <input th:unless="${showCreditNameSelect}" type="hidden" name="creditId" th:value="${creditId}">
+    <input type="number" name="creditAmount" placeholder="Сумма кредита" th:value="${creditAmountValue}">
+    <span th:text="${creditAmountError}"></span>
     <br>
-    <input type="date" name="creditDate" placeholder="Дата выдачи">
-    <span></span>
+    <input type="date" name="creditDate" placeholder="Дата выдачи" th:value="${creditDateValue}">
+    <span th:text="${creditDateError}"></span>
     <br>
-    <input type="number" name="time" placeholder="Срок (кол-во лет)">
-    <span></span>
+    <input type="number" name="time" placeholder="Срок (кол-во лет)" th:value="${timeValue}">
+    <span th:text="${timeError}"></span>
     <br>
-    <input type="number" name="interestRate" placeholder="Процентная ставка">
-    <span></span>
+    <input type="number" name="interestRate" placeholder="Процентная ставка" th:value="${interestRateValue}">
+    <span th:text="${interestRateError}"></span>
     <br>
     <select name="creditType">
         <option>Аннуитетный</option>

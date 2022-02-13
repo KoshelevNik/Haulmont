@@ -5,7 +5,7 @@
     <title>Bank</title>
 </head>
 <body>
-<table>
+<table style="border-width: 5px">
     <tr>
         <th>Дата</th>
         <th>Платеж</th>
@@ -13,12 +13,12 @@
         <th>Тело кредита</th>
         <th>Остаток</th>
     </tr>
-    <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
+    <tr th:each="p : ${payments}">
+        <td th:text="${dateFormat.format(p.getPayment_date().getTime())}"></td>
+        <td th:text="${p.getPayment_amount}"></td>
+        <td th:text="${p.getPercent()}"></td>
+        <td th:text="${p.getCredit_body()}"></td>
+        <td th:text="${p.getRemainder()}"></td>
     </tr>
 </table>
 </body>

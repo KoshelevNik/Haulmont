@@ -1,5 +1,6 @@
 package main.entity;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class Credit {
@@ -39,5 +40,18 @@ public class Credit {
 
     public void setInterest_rate(Float interest_rate) {
         this.interest_rate = interest_rate;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Credit credit = (Credit) o;
+        return Objects.equals(id, credit.id) && Objects.equals(limit, credit.limit) && Objects.equals(interest_rate, credit.interest_rate) && Objects.equals(name, credit.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, limit, interest_rate, name);
     }
 }

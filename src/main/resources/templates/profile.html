@@ -5,14 +5,15 @@
     <title>Bank</title>
 </head>
 <body>
-<p></p>
-<p></p>
-<p></p>
-<p></p>
-<a href="/myCredits">Мои кредиты</a>
-<a href="/changePassword">Сменить пароль</a>
-<a href="/changeClientData">Сменить клиентские даннные</a>
-<a href="/loanOffers">Мои кредитные предложения</a>
-<a href="/loanProcessing">Создать кредитное предложение</a>
+<p th:text="${client.getName()}"></p>
+<p th:text="${client.getPhone()}"></p>
+<p th:text="${user.getMail()}"></p>
+<p th:text="${client.getPassport_id()}"></p>
+<a href="/">На главную</a><br>
+<a href="/myCredits">Мои кредиты</a><br>
+<a href="/changePassword">Сменить пароль</a><br>
+<a href="/changeClientData">Сменить клиентские даннные</a><br>
+<a href="/loanOffers">Мои кредитные предложения</a><br>
+<a href="/loanProcessing" th:if="${isAdmin}">Создать кредитное предложение</a>
 </body>
 </html>

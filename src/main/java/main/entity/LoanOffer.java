@@ -8,6 +8,15 @@ public class LoanOffer {
     private Integer credit_amount;
     private UUID[] payments_graph;
     private Boolean client_confirm, admin_confirm;
+    private Float interest_rate;
+
+    public Float getInterest_rate() {
+        return interest_rate;
+    }
+
+    public void setInterest_rate(Float interest_rate) {
+        this.interest_rate = interest_rate;
+    }
 
     public LoanOfferId getLoanOfferId() {
         return loanOfferId;

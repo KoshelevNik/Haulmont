@@ -5,7 +5,8 @@
     <title>Bank</title>
 </head>
 <body>
-<form method="post" action="/myLoanOffers">
+<form method="post" action="/loanOffers">
+    <a href="/">На главную</a><br>
     <table>
         <tr>
             <th>Название</th>
@@ -14,15 +15,17 @@
             <th>Банковское подтверждение</th>
             <th></th>
         </tr>
-        <tr>
-            <td></td>
-            <td><input type="submit" value="Посмотреть"></td>
-            <td></td>
-            <td></td>
+        <tr th:each="v : ${myLoanOffers}">
+            <td th:text="${v.name()}"></td>
+            <td><input type="submit" value="Посмотреть" th:name="${'pg=' + v.creditId()}"></td>
+            <td th:if="${v.clientConfirm() == null || !v.clientConfirm()}">Не подтвержден</td>
+            <td th:unless="${v.clientConfirm() == null || !v.clientConfirm()}">Подтвержден</td>
+            <td th:if="${v.adminConfirm() == null || !v.adminConfirm()}">Подтвержден</td>
+            <td th:unless="${v.adminConfirm() == null || !v.adminConfirm()}">Подтвержден</td>
             <td>
-                <input type="submit" value="Подтвердить">
+                <input th:if="${v.clientConfirm() == null || !v.clientConfirm()}" type="submit" value="Подтвердить" th:name="${'confirm=' + v.creditId()}">
                 <br>
-                <input type="submit" value="Отменить">
+                <input th:if="${v.clientConfirm() == null || v.clientConfirm()}" type="submit" value="Отменить" th:name="${'cancel=' + v.creditId()}">
             </td>
         </tr>
     </table>

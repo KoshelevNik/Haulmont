@@ -14,12 +14,12 @@
             <th>Процентная ставка</th>
             <th>График платежей</th>
         </tr>
-        <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td><input type="submit" value="Посмотреть"></td>
+        <tr th:each="v : ${credits}">
+            <td th:text="${v.name()}"></td>
+            <td th:text="${v.creditAmount()}"></td>
+            <td th:text="${v.dateOfIssue()}"></td>
+            <td th:text="${v.interestRate()}"></td>
+            <td><input type="submit" value="Посмотреть" th:name="${'id=' + v.creditId()}"></td>
         </tr>
     </table>
 </form>

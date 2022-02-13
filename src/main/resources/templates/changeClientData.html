@@ -6,13 +6,14 @@
 </head>
 <body>
 <form method="post" action="/changeClientData">
-    <input type="text" name="name" placeholder="ФИО">
+    <input type="text" name="name" placeholder="ФИО" th:value="${nameValue}">
+    <span th:text="${nameError}"></span>
     <br>
-    <input type="text" name="name" placeholder="Номер телефона">
+    <input type="text" name="phone" placeholder="Номер телефона" th:value="${phoneValue}">
+    <span th:text="${phoneError}"></span>
     <br>
-    <input type="email" name="name" placeholder="Почта">
-    <br>
-    <input type="number" name="name" placeholder="Номер паспорта">
+    <input type="number" name="passportId" placeholder="Номер паспорта" th:value="${passportIdValue}">
+    <span th:text="${passportIdError}"></span>
     <br>
     <input type="submit" value="Сохранить">
 </form>

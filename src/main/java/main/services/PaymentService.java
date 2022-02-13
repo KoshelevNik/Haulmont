@@ -12,6 +12,8 @@ import java.util.UUID;
 @Service
 public class PaymentService {
 
+    public static Payment[] payments;
+
     @Autowired
     private PaymentDAO paymentDAO;
 
@@ -33,5 +35,14 @@ public class PaymentService {
 
     public List<Payment> findAll() {
         return paymentDAO.findAll();
+    }
+
+    public boolean idExistInDatabase(UUID uuid) {
+        return read(uuid).isPresent();
+    }
+
+    public void createAllFromArray(Payment[] payments) {
+        for (Payment p : payments)
+            create(p);
     }
 }
