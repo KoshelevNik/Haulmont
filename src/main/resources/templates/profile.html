@@ -10,10 +10,12 @@
 <p th:text="${user.getMail()}"></p>
 <p th:text="${client.getPassport_id()}"></p>
 <a href="/">На главную</a><br>
-<a href="/myCredits">Мои кредиты</a><br>
-<a href="/changePassword">Сменить пароль</a><br>
-<a href="/changeClientData">Сменить клиентские даннные</a><br>
-<a href="/loanOffers">Мои кредитные предложения</a><br>
+<a href="/myCredits" th:unless="${isAdmin}">Мои кредиты</a><br>
+<a th:href="${'/myCredits?clientIdOptional='+user.getId()}" th:if="${isAdmin}">Кредиты пользователя</a><br>
+<a href="/changePassword" th:unless="${isAdmin}">Сменить пароль</a><br>
+<a href="/changeClientData" th:unless="${isAdmin}">Сменить клиентские даннные</a><br>
+<a href="/loanOffers" th:unless="${isAdmin}">Мои кредитные предложения</a><br>
+<a th:href="${'/loanOffers?clientIdOptional='+user.getId()}" th:if="${isAdmin}">Кредитные предложения пользователя</a><br>
 <a href="/loanProcessing" th:if="${isAdmin}">Создать кредитное предложение</a>
 </body>
 </html>

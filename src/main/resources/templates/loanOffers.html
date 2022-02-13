@@ -17,15 +17,31 @@
         </tr>
         <tr th:each="v : ${myLoanOffers}">
             <td th:text="${v.name()}"></td>
-            <td><input type="submit" value="Посмотреть" th:name="${'pg=' + v.creditId()}"></td>
-            <td th:if="${v.clientConfirm() == null || !v.clientConfirm()}">Не подтвержден</td>
-            <td th:unless="${v.clientConfirm() == null || !v.clientConfirm()}">Подтвержден</td>
-            <td th:if="${v.adminConfirm() == null || !v.adminConfirm()}">Подтвержден</td>
-            <td th:unless="${v.adminConfirm() == null || !v.adminConfirm()}">Подтвержден</td>
+            <td><input type="submit" value="Посмотреть" th:name="${'pg=' + v.creditId() + '=' + clientId}"></td>
+
+            <td th:if="${v.clientConfirm().equals('null')}">Не указано</td>
+            <td th:if="${v.clientConfirm().equals('false')}">Не подтвержден</td>
+            <td th:if="${v.clientConfirm().equals('true')}">Подтвержден</td>
+
+            <td th:if="${v.adminConfirm().equals('null')}">Не указано</td>
+            <td th:if="${v.adminConfirm().equals('false')}">Не подтвержден</td>
+            <td th:if="${v.adminConfirm().equals('true')}">Подтвержден</td>
+
             <td>
-                <input th:if="${v.clientConfirm() == null || !v.clientConfirm()}" type="submit" value="Подтвердить" th:name="${'confirm=' + v.creditId()}">
-                <br>
-                <input th:if="${v.clientConfirm() == null || v.clientConfirm()}" type="submit" value="Отменить" th:name="${'cancel=' + v.creditId()}">
+                <div th:if="${role.equals('user')}">
+                    <input th:if="${v.clientConfirm().equals('null') || !v.clientConfirm().equals('true')}"
+                           type="submit" value="Подтвердить" th:name="${'confirm=' + v.creditId()}">
+                    <br>
+                    <input th:if="${v.clientConfirm().equals('null') || (v.clientConfirm().equals('true') && !v.adminConfirm().equals('true'))}"
+                           type="submit" value="Отменить" th:name="${'cancel=' + v.creditId()}">
+                </div>
+                <div th:if="${role.equals('admin')}">
+                    <input th:if="${v.adminConfirm().equals('null') || !v.adminConfirm().equals('true')}"
+                           type="submit" value="Подтвердить" th:name="${'confirm=' + v.creditId() + '=' + clientId}">
+                    <br>
+                    <input th:if="${v.adminConfirm().equals('null') || (!v.clientConfirm().equals('true') && v.adminConfirm().equals('true'))}"
+                           type="submit" value="Отменить" th:name="${'cancel=' + v.creditId() + '=' + clientId}">
+                </div>
             </td>
         </tr>
     </table>

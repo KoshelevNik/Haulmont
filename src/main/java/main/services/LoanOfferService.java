@@ -47,14 +47,11 @@ public class LoanOfferService {
         return allById;
     }
 
-    public List<LoanOffer> findAllById(LoanOffer.LoanOfferId loanOfferId) {
+    public List<LoanOffer> findAllByCreditId(UUID creditId) {
         List<LoanOffer> allLoanOffer = findAll();
         List<LoanOffer> allById = new ArrayList<>();
         for (LoanOffer loanOffer : allLoanOffer) {
-            if (
-                    loanOffer.getLoanOfferId().client_id().equals(loanOfferId.client_id()) &&
-                            loanOffer.getLoanOfferId().credit_id().equals(loanOfferId.credit_id())
-            ) {
+            if (loanOffer.getLoanOfferId().credit_id().equals(creditId)) {
                 allById.add(loanOffer);
             }
         }

@@ -29,7 +29,30 @@
     <a href="/loanOffers">Подтвержденные</a>
     <a href="/credits">Кредиты</a>
     <form method="post" action="/">
-
+        <table>
+            <tr>
+                <th>Название</th>
+                <th>Пользователь</th>
+                <th>Сумма</th>
+                <th>Дата выдачи</th>
+                <th>Процентная ставка</th>
+                <th>График платежей</th>
+                <th></th>
+            </tr>
+            <tr th:each="v : ${notConfirmedLoanOffers}">
+                <td th:text="${v.name()}"></td>
+                <td><input type="submit" th:name="${'client=' + v.clientId()}" th:value="${v.clientName()}"></td>
+                <td th:text="${v.creditAmount()}"></td>
+                <td th:text="${v.issueDate()}"></td>
+                <td th:text="${v.interestRate()}"></td>
+                <td><input type="submit" th:name="${v.clientId()+'='+v.creditId()}" value="Посмотреть"></td>
+                <td>
+                    <input type="submit" value="Подтвердить" th:name="${'confirm=' + v.creditId() + '=' + v.clientId()}">
+                    <br>
+                    <input type="submit" value="Отменить" th:name="${'cancel=' + v.creditId() + '=' + v.clientId()}">
+                </td>
+            </tr>
+        </table>
     </form>
 </div>
 

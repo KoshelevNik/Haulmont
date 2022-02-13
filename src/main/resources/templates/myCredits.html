@@ -19,7 +19,7 @@
             <td th:text="${v.creditAmount()}"></td>
             <td th:text="${v.dateOfIssue()}"></td>
             <td th:text="${v.interestRate()}"></td>
-            <td><input type="submit" value="Посмотреть" th:name="${'id=' + v.creditId()}"></td>
+            <td><input type="submit" value="Посмотреть" th:name="${'id=' + v.creditId() + '=' + clientId}"></td>
         </tr>
     </table>
 </form>

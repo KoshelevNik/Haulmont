@@ -1,10 +1,7 @@
 package main.controller;
 
 import main.entity.*;
-import main.services.BankService;
-import main.services.CreditService;
-import main.services.LoanOfferService;
-import main.services.PaymentService;
+import main.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.reactive.context.AnnotationConfigReactiveWebApplicationContext;
 import org.springframework.context.ApplicationContext;
@@ -35,72 +32,130 @@ public class MainController {
     @Autowired
     private LoanOfferService loanOfferService;
 
+    @Autowired
+    private ClientService clientService;
+
     @GetMapping("/")
     public String indexGET(Model model, Principal principal) {
         User user = (User) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
         model.addAttribute("user", user);
 
-        List<Credit> creditList = creditService.findAll();
-        List<Bank> bankList = bankService.findAll();
-        for (Bank bank : bankList) {
-            if (bank.getBankId().client_id().equals(user.getId()))
-                creditList.remove(creditService.read(bank.getBankId().credit_id()).get());
-        }
-        model.addAttribute("creditList", creditList);
-        return "index";
-    }
-
-    @PostMapping("/")
-    public String indexPOST(@RequestParam HashMap<String, String> mapParam, Principal principal, Model model) {
-        if (!mapParam.get("creditName").isEmpty() && mapParam.containsKey("search")) {
-            User user = (User) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
-            model.addAttribute("user", user);
-
+        if (user.getRole().equals("user")) {
             List<Credit> creditList = creditService.findAll();
             List<Bank> bankList = bankService.findAll();
             for (Bank bank : bankList) {
                 if (bank.getBankId().client_id().equals(user.getId()))
                     creditList.remove(creditService.read(bank.getBankId().credit_id()).get());
             }
-
-            creditList.sort(new Comparator<>() {
-                @Override
-                public int compare(Credit o1, Credit o2) {
-                    return countOfCoincidences(o2.getName(), mapParam.get("creditName")) -
-                            countOfCoincidences(o1.getName(), mapParam.get("creditName"));
-                }
-
-                private int countOfCoincidences(String s1, String s2) {
-                    int maxCount = 0;
-                    for (int i = 0; i < s1.length(); i++) {
-                        int count = 0;
-                        boolean start = false;
-                        for (int j = 0; j < s2.length() && i + j < s1.length(); j++) {
-                            boolean b = s1.toCharArray()[i + j] == s2.toCharArray()[j];
-                            if (b && !start) {
-                                start = true;
-                                count++;
-                            } else if (!b && start) {
-                                break;
-                            } else if (b) {
-                                count++;
-                            }
-                        }
-                        maxCount = Math.max(maxCount, count);
-                    }
-                    return maxCount;
-                }
-            });
-
             model.addAttribute("creditList", creditList);
-            return "index";
         } else {
-            mapParam.remove("creditName");
-            String key = mapParam.entrySet().toArray()[0].toString();
-            if (key.startsWith("id=")) {
-                return "redirect:loanProcessing?id=" + key.split("=")[1];
-            } else {
+            List<LoanOffer> allLoanOffers = loanOfferService.findAll();
+            List<NotConfirmedLoanOffer> notConfirmedLoanOffers = new ArrayList<>();
+            for (LoanOffer loanOffer : allLoanOffers) {
+                if (loanOffer.getAdmin_confirm() == null) {
+                    DateFormat dt = new SimpleDateFormat("dd-MM-yyyy");
+                    notConfirmedLoanOffers.add(new NotConfirmedLoanOffer(
+                            creditService.read(loanOffer.getLoanOfferId().credit_id()).get().getName(),
+                            loanOffer.getLoanOfferId().client_id(),
+                            loanOffer.getCredit_amount(),
+                            dt.format(paymentService.read(loanOffer.getPayments_graph()[0]).get().getPayment_date().getTime()),
+                            loanOffer.getInterest_rate(),
+                            loanOffer.getLoanOfferId().credit_id(),
+                            clientService.read(loanOffer.getLoanOfferId().client_id()).get().getName()
+                    ));
+                }
+            }
+            model.addAttribute("notConfirmedLoanOffers", notConfirmedLoanOffers);
+        }
+
+        return "index";
+    }
+
+    @PostMapping("/")
+    public String indexPOST(@RequestParam HashMap<String, String> mapParam, Principal principal, Model model) {
+        User user = (User) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+        if (user.getRole().equals("user")) {
+            if (!mapParam.get("creditName").isEmpty() && mapParam.containsKey("search")) {
+                model.addAttribute("user", user);
+
+                List<Credit> creditList = creditService.findAll();
+                List<Bank> bankList = bankService.findAll();
+                for (Bank bank : bankList) {
+                    if (bank.getBankId().client_id().equals(user.getId()))
+                        creditList.remove(creditService.read(bank.getBankId().credit_id()).get());
+                }
+
+                creditList.sort(new Comparator<>() {
+                    @Override
+                    public int compare(Credit o1, Credit o2) {
+                        return countOfCoincidences(o2.getName(), mapParam.get("creditName")) -
+                                countOfCoincidences(o1.getName(), mapParam.get("creditName"));
+                    }
+
+                    private int countOfCoincidences(String s1, String s2) {
+                        int maxCount = 0;
+                        for (int i = 0; i < s1.length(); i++) {
+                            int count = 0;
+                            boolean start = false;
+                            for (int j = 0; j < s2.length() && i + j < s1.length(); j++) {
+                                boolean b = s1.toCharArray()[i + j] == s2.toCharArray()[j];
+                                if (b && !start) {
+                                    start = true;
+                                    count++;
+                                } else if (!b && start) {
+                                    break;
+                                } else if (b) {
+                                    count++;
+                                }
+                            }
+                            maxCount = Math.max(maxCount, count);
+                        }
+                        return maxCount;
+                    }
+                });
+
+                model.addAttribute("creditList", creditList);
                 return "index";
+            } else {
+                mapParam.remove("creditName");
+                String key = mapParam.entrySet().toArray()[0].toString();
+                if (key.startsWith("id=")) {
+                    return "redirect:loanProcessing?id=" + key.split("=")[1];
+                } else {
+                    return "index";
+                }
+            }
+        } else {
+            String key = mapParam.keySet().toArray()[0].toString();
+            if (key.startsWith("client")) {
+                return "redirect:profile?clientId=" + key.split("=")[1];
+            } else if (key.startsWith("confirm")) {
+                LoanOffer loanOffer = loanOfferService.read(new LoanOffer.LoanOfferId(
+                        UUID.fromString(key.split("=")[2]),
+                        UUID.fromString(key.split("=")[1])
+                )).get();
+                loanOffer.setAdmin_confirm(true);
+                loanOfferService.update(loanOffer);
+                return "redirect:";
+            } else if (key.startsWith("cancel")) {
+                LoanOffer loanOffer = loanOfferService.read(new LoanOffer.LoanOfferId(
+                        UUID.fromString(key.split("=")[2]),
+                        UUID.fromString(key.split("=")[1])
+                )).get();
+                loanOffer.setAdmin_confirm(false);
+                loanOfferService.update(loanOffer);
+                return "redirect:";
+            } else {
+                UUID clientId = UUID.fromString(key.split("=")[0]);
+                UUID creditId = UUID.fromString(key.split("=")[1]);
+                LoanOffer loanOffer = loanOfferService.read(new LoanOffer.LoanOfferId(clientId, creditId)).get();
+                Payment[] paymentsGraph = new Payment[loanOffer.getPayments_graph().length];
+                UUID[] uuids = loanOffer.getPayments_graph();
+                for (int i = 0; i < uuids.length; i++) {
+                    paymentsGraph[i] = paymentService.read(uuids[i]).get();
+                }
+                PaymentService.payments = paymentsGraph;
+                return "redirect:paymentsGraph";
             }
         }
     }
@@ -108,7 +163,9 @@ public class MainController {
     @GetMapping("/loanProcessing")
     public String loanProcessingGET(Model model, Principal principal, @RequestParam Optional<String> id) {
         User user = (User) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
-        if (id.isPresent() && !id.get().isEmpty() && user.getRole().equals("user")) {
+        if (id.isPresent() && !id.get().isEmpty() && user.getRole().equals("user") &&
+                loanOfferService.read(new LoanOffer.LoanOfferId(user.getId(), UUID.fromString(id.get()))).isEmpty()
+        ) {
             model.addAttribute("showCreditNameSelect", false);
             model.addAttribute("creditId", id.get());
         } else if (user.getRole().equals("admin") && (id.isEmpty() || id.get().isEmpty())) {
@@ -132,6 +189,7 @@ public class MainController {
     @PostMapping("/loanProcessing")
     public String loanProcessingPOST(@RequestParam HashMap<String, String> mapParam, Principal principal, Model model) {
         User user = (User) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+        UUID creditId = UUID.fromString(mapParam.get("creditId"));
         if (
                 !(!mapParam.containsValue("") &&
                         !mapParam.get("creditAmount").isEmpty() &&
@@ -141,7 +199,9 @@ public class MainController {
                         !mapParam.get("time").isEmpty() &&
                         Integer.parseInt(mapParam.get("time")) > 0 &&
                         !mapParam.get("interestRate").isEmpty() &&
-                        Float.parseFloat(mapParam.get("interestRate")) > 0)
+                        Float.parseFloat(mapParam.get("interestRate")) > 0 &&
+                        Integer.parseInt(mapParam.get("creditAmount")) <= creditService.read(creditId).get().getLimit() &&
+                        Float.parseFloat(mapParam.get("interestRate")) <= creditService.read(creditId).get().getInterest_rate())
         ) {
 
             if (mapParam.get("creditAmount").isEmpty()) {
@@ -149,6 +209,9 @@ public class MainController {
                 model.addAttribute("creditAmountValue", "");
             } else if (Integer.parseInt(mapParam.get("creditAmount")) <= 0) {
                 model.addAttribute("creditAmountError", "Некорректно указано значение");
+                model.addAttribute("creditAmountValue", "");
+            } else if (Integer.parseInt(mapParam.get("creditAmount")) > creditService.read(creditId).get().getLimit()) {
+                model.addAttribute("creditAmountError", "Значение больше лимита");
                 model.addAttribute("creditAmountValue", "");
             } else {
                 model.addAttribute("creditAmountError", "");
@@ -192,6 +255,9 @@ public class MainController {
             } else if (Float.parseFloat(mapParam.get("interestRate")) <= 0) {
                 model.addAttribute("interestRateError", "Некорректно указано значение");
                 model.addAttribute("interestRateValue", "");
+            } else if (Float.parseFloat(mapParam.get("interestRate")) > creditService.read(creditId).get().getInterest_rate()) {
+                model.addAttribute("interestRateError", "Значение больше лимита");
+                model.addAttribute("interestRateValue", "");
             } else {
                 model.addAttribute("interestRateError", "");
                 model.addAttribute("interestRateValue", mapParam.get("interestRate"));
@@ -201,7 +267,6 @@ public class MainController {
             model.addAttribute("creditId", mapParam.get("creditId"));
             return "loanProcessing";
         } else {
-            UUID creditId = UUID.fromString(mapParam.get("creditId"));
             int creditAmount = Integer.parseInt(mapParam.get("creditAmount"));
             String[] dateString = mapParam.get("creditDate").split("-");
             Calendar creditDate = new GregorianCalendar(
@@ -225,9 +290,9 @@ public class MainController {
                 loanOffer.setInterest_rate(interestRate);
 
                 paymentsGraph =
-                    (creditType.equals("Аннуитетный"))
-                            ? annuityLoan(creditAmount, creditDate, timeInMonth, interestRate)
-                            : differentiatedLoan(creditAmount, creditDate, timeInMonth, interestRate);
+                        (creditType.equals("Аннуитетный"))
+                                ? annuityLoan(creditAmount, creditDate, timeInMonth, interestRate)
+                                : differentiatedLoan(creditAmount, creditDate, timeInMonth, interestRate);
 
                 paymentService.createAllFromArray(paymentsGraph.payments());
                 loanOffer.setPayments_graph(paymentsGraph.paymentsUUID());
@@ -409,7 +474,12 @@ public class MainController {
         return new PaymentsGraph(payments, paymentsUUID);
     }
 
-    private record PaymentsGraph(Payment[] payments, UUID[] paymentsUUID) {}
+    private record PaymentsGraph(Payment[] payments, UUID[] paymentsUUID) {
+    }
+
+    private record NotConfirmedLoanOffer(String name, UUID clientId, Integer creditAmount, String issueDate,
+                                         Float interestRate, UUID creditId, String clientName) {
+    }
 
     private boolean before(String date) {
         String[] dateString = date.split("-");

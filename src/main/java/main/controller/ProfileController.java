@@ -44,58 +44,62 @@ public class ProfileController {
     private PaymentService paymentService;
 
     @GetMapping("/profile")
-    public String profileGET(Model model, Principal principal) {
+    public String profileGET(Model model, Principal principal, @RequestParam Optional<String> clientId) {
         User user = (User) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
-        Client client = clientService.read(user.getId()).get();
-        model.addAttribute("user", user);
-        model.addAttribute("client", client);
+        if (user.getRole().equals("user")) {
+            Client client = clientService.read(user.getId()).get();
+            model.addAttribute("user", user);
+            model.addAttribute("client", client);
+        } else {
+            if (clientId.isPresent() && !clientId.get().isEmpty()) {
+                User clientUser = userService.read(UUID.fromString(clientId.get())).get();
+                Client client = clientService.read(UUID.fromString(clientId.get())).get();
+                model.addAttribute("user", clientUser);
+                model.addAttribute("client", client);
+            } else {
+                return "redirect:";
+            }
+        }
         model.addAttribute("isAdmin", user.getRole().equals("admin"));
         return "profile";
     }
 
     @GetMapping("/myCredits")
-    public String myCreditsGET(Model model, Principal principal) {
+    public String myCreditsGET(Model model, Principal principal, @RequestParam Optional<String> clientIdOptional) {
         User user = (User) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+        if (clientIdOptional.isPresent() && user.getRole().equals("admin")) {
+            user = userService.read(UUID.fromString(clientIdOptional.get())).get();
+        } else if (clientIdOptional.isEmpty() && user.getRole().equals("admin")) {
+            return "redirect:";
+        }
         List<Bank> bankList = bankService.findAll();
         List<MyCredit> credits = new ArrayList<>();
         for (Bank bank : bankList) {
             UUID clientId = bank.getBankId().client_id();
             if (clientId.equals(user.getId())) {
                 UUID creditId = bank.getBankId().credit_id();
-                List<LoanOffer> allById = loanOfferService.findAllById(new LoanOffer.LoanOfferId(clientId, creditId));
-                LoanOffer loanOffer = new LoanOffer();
-                boolean confirmed = false;
-                for (LoanOffer lo : allById) {
-                    if (lo.getAdmin_confirm() != null && lo.getClient_confirm() != null && lo.getAdmin_confirm() && lo.getClient_confirm()) {
-                        loanOffer = lo;
-                        confirmed = true;
-                        break;
-                    }
-                }
-                if (confirmed) {
-                    Calendar date = paymentService.read(loanOffer.getPayments_graph()[0]).get().getPayment_date();
-                    DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-                    MyCredit myCredit = new MyCredit(
-                            creditService.read(creditId).get().getName(),
-                            loanOffer.getCredit_amount(),
-                            dateFormat.format(date.getTime()),
-                            loanOffer.getInterest_rate(),
-                            creditId
-                    );
-                    credits.add(myCredit);
-                }
+                LoanOffer loanOffer = loanOfferService.read(new LoanOffer.LoanOfferId(clientId, creditId)).get();
+                DateFormat dt = new SimpleDateFormat("dd-MM-yyyy");
+                credits.add(new MyCredit(
+                        creditService.read(creditId).get().getName(),
+                        loanOffer.getCredit_amount(),
+                        dt.format(paymentService.read(loanOffer.getPayments_graph()[0]).get().getPayment_date().getTime()),
+                        loanOffer.getInterest_rate(),
+                        creditId
+                ));
             }
         }
+        model.addAttribute("clientId", user.getId().toString());
         model.addAttribute("credits", credits);
         return "myCredits";
     }
 
     @PostMapping("/myCredits")
-    public String myCreditsPOST(@RequestParam Map<String, String> allParam, Principal principal) {
-        User user = (User) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+    public String myCreditsPOST(@RequestParam Map<String, String> allParam) {
         String creditId = allParam.keySet().toArray()[0].toString().split("=")[1];
+        String clientId = allParam.keySet().toArray()[0].toString().split("=")[2];
         LoanOffer loanOffer = loanOfferService.read(new LoanOffer.LoanOfferId(
-                user.getId(),
+                UUID.fromString(clientId),
                 UUID.fromString(creditId)
         )).get();
         Payment[] paymentsGraph = new Payment[loanOffer.getPayments_graph().length];
