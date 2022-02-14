@@ -4,6 +4,7 @@
   mvn package<br>
   2. После этого выполнить:<br>
   mvn spring-boot:run<br>
+
 Данные аккаунтов:<br>
   Админ:<br>
     Логин: admin@mail.ru<br>
