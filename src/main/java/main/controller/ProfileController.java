@@ -56,6 +56,13 @@ public class ProfileController {
                 Client client = clientService.read(UUID.fromString(clientId.get())).get();
                 model.addAttribute("user", clientUser);
                 model.addAttribute("client", client);
+
+                List<LoanOffer> allByClientId = loanOfferService.findAllByClientId(clientUser.getId());
+                List<Credit> allCredits = creditService.findAll();
+                for (LoanOffer loanOffer : allByClientId) {
+                    allCredits.remove(creditService.read(loanOffer.getLoanOfferId().credit_id()).get());
+                }
+                model.addAttribute("creditsIsEmpty", allCredits.isEmpty());
             } else {
                 return "redirect:";
             }

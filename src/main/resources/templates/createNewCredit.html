@@ -6,11 +6,15 @@
 </head>
 <body>
 <form method="post" action="/createNewCredit">
-    <input type="text" placeholder="Название" name="name">
+    <input th:if="${isUpdate}" type="hidden" th:value="${id.get()}" name="id">
+    <input type="text" placeholder="Название" name="name" th:value="${nameValue}">
+    <span th:text="${nameError}"></span>
     <br>
-    <input type="number" name="limit" placeholder="Лимит">
+    <input type="number" name="limit" placeholder="Лимит" th:value="${limitValue}">
+    <span th:text="${limitError}"></span>
     <br>
-    <input type="number" name="interestRate" placeholder="Процентная ставка">
+    <input type="number" name="interestRate" placeholder="Процентная ставка" th:value="${interestRateValue}" step="0.1">
+    <span th:text="${interestRateError}"></span>
     <br>
     <input type="submit" value="Подтвердить">
 </form>

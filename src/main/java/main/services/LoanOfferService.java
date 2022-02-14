@@ -57,4 +57,26 @@ public class LoanOfferService {
         }
         return allById;
     }
+
+    public List<LoanOffer> findAllIfAdminConfirm() {
+        List<LoanOffer> allLoanOffer = findAll();
+        List<LoanOffer> allIfAdminConfirm = new ArrayList<>();
+        for (LoanOffer loanOffer : allLoanOffer) {
+            if (loanOffer.getAdmin_confirm()) {
+                allIfAdminConfirm.add(loanOffer);
+            }
+        }
+        return allIfAdminConfirm;
+    }
+
+    public List<LoanOffer> findAllIfAdminNotConfirm() {
+        List<LoanOffer> allLoanOffer = findAll();
+        List<LoanOffer> allIfAdminNotConfirm = new ArrayList<>();
+        for (LoanOffer loanOffer : allLoanOffer) {
+            if (!loanOffer.getAdmin_confirm()) {
+                allIfAdminNotConfirm.add(loanOffer);
+            }
+        }
+        return allIfAdminNotConfirm;
+    }
 }

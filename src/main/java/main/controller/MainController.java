@@ -42,13 +42,15 @@ public class MainController {
 
         if (user.getRole().equals("user")) {
             List<Credit> creditList = creditService.findAll();
-            List<Bank> bankList = bankService.findAll();
-            for (Bank bank : bankList) {
-                if (bank.getBankId().client_id().equals(user.getId()))
-                    creditList.remove(creditService.read(bank.getBankId().credit_id()).get());
+            List<LoanOffer> loanOfferList = loanOfferService.findAll();
+            for (LoanOffer loanOffer : loanOfferList) {
+                if (loanOffer.getLoanOfferId().client_id().equals(user.getId())) {
+                    creditList.remove(creditService.read(loanOffer.getLoanOfferId().credit_id()).get());
+                }
             }
             model.addAttribute("creditList", creditList);
         } else {
+            autoDelete();
             List<LoanOffer> allLoanOffers = loanOfferService.findAll();
             List<NotConfirmedLoanOffer> notConfirmedLoanOffers = new ArrayList<>();
             for (LoanOffer loanOffer : allLoanOffers) {
@@ -79,10 +81,11 @@ public class MainController {
                 model.addAttribute("user", user);
 
                 List<Credit> creditList = creditService.findAll();
-                List<Bank> bankList = bankService.findAll();
-                for (Bank bank : bankList) {
-                    if (bank.getBankId().client_id().equals(user.getId()))
-                        creditList.remove(creditService.read(bank.getBankId().credit_id()).get());
+                List<LoanOffer> loanOfferList = loanOfferService.findAll();
+                for (LoanOffer loanOffer : loanOfferList) {
+                    if (loanOffer.getLoanOfferId().client_id().equals(user.getId())) {
+                        creditList.remove(creditService.read(loanOffer.getLoanOfferId().credit_id()).get());
+                    }
                 }
 
                 creditList.sort(new Comparator<>() {
@@ -136,6 +139,14 @@ public class MainController {
                 )).get();
                 loanOffer.setAdmin_confirm(true);
                 loanOfferService.update(loanOffer);
+                if (loanOffer.getAdmin_confirm() && loanOffer.getClient_confirm()) {
+                    Bank bank = new Bank();
+                    bank.setBankId(new Bank.BankId(
+                            loanOffer.getLoanOfferId().client_id(),
+                            loanOffer.getLoanOfferId().credit_id()
+                    ));
+                    bankService.create(bank);
+                }
                 return "redirect:";
             } else if (key.startsWith("cancel")) {
                 LoanOffer loanOffer = loanOfferService.read(new LoanOffer.LoanOfferId(
@@ -168,10 +179,18 @@ public class MainController {
         ) {
             model.addAttribute("showCreditNameSelect", false);
             model.addAttribute("creditId", id.get());
-        } else if (user.getRole().equals("admin") && (id.isEmpty() || id.get().isEmpty())) {
+        } else if (user.getRole().equals("admin") && id.isPresent() && !id.get().isEmpty()) {
             model.addAttribute("showCreditNameSelect", true);
+            UUID clientId = UUID.fromString(id.get());
+            List<LoanOffer> allByClientId = loanOfferService.findAllByClientId(clientId);
+            List<Credit> allCredits = creditService.findAll();
+            for (LoanOffer loanOffer : allByClientId) {
+                allCredits.remove(creditService.read(loanOffer.getLoanOfferId().credit_id()).get());
+            }
+            model.addAttribute("clientId", clientId);
+            model.addAttribute("allCredits", allCredits);
         } else
-            return (user.getRole().equals("admin")) ? "redirect:loanProcessing" : "redirect:";
+            return "redirect:";
 
         model.addAttribute("creditAmountError", "");
         model.addAttribute("creditDateError", "");
@@ -283,9 +302,9 @@ public class MainController {
             if (mapParam.containsKey("registration")) {
 
                 LoanOffer loanOffer = new LoanOffer();
-                loanOffer.setLoanOfferId(new LoanOffer.LoanOfferId(user.getId(), creditId));
-                loanOffer.setAdmin_confirm(null);
-                loanOffer.setClient_confirm(true);
+                loanOffer.setLoanOfferId(new LoanOffer.LoanOfferId((user.getRole().equals("user")) ? user.getId() : UUID.fromString(mapParam.get("clientId")), creditId));
+                loanOffer.setAdmin_confirm((user.getRole().equals("user")) ? null : true);
+                loanOffer.setClient_confirm((user.getRole().equals("user")) ? true : null);
                 loanOffer.setCredit_amount(creditAmount);
                 loanOffer.setInterest_rate(interestRate);
 
@@ -325,18 +344,59 @@ public class MainController {
     @GetMapping("/paymentsGraph")
     public String paymentsGraphGET(Model model) {
         DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        int amount = 0;
+        int creditAmount = 0;
+        for (int i = 0; i < PaymentService.payments.length - 1; i++) {
+            amount += PaymentService.payments[i].getPayment_amount();
+            creditAmount += PaymentService.payments[i].getCredit_body();
+        }
+        amount += PaymentService.payments[PaymentService.payments.length - 1].getPayment_amount();
+        creditAmount += PaymentService.payments[PaymentService.payments.length - 1].getPayment_amount();
+        model.addAttribute("amount", amount);
+        model.addAttribute("percent", amount - creditAmount);
         model.addAttribute("payments", PaymentService.payments);
         model.addAttribute("dateFormat", dateFormat);
         return "paymentsGraph";
     }
 
     @GetMapping("/clients")
-    public String clientsGET(Model model, Principal principal) {
+    public String clientsGET(Model model) {
+        model.addAttribute("clientList", clientService.findAll());
         return "clients";
     }
 
     @PostMapping("/clients")
-    public String clientsPOST() {
+    public String clientsPOST(Model model, @RequestParam String name) {
+        List<Client> clientList = clientService.findAll();
+        clientList.sort(new Comparator<>() {
+            @Override
+            public int compare(Client o1, Client o2) {
+                return countOfCoincidences(o2.getName(), name) -
+                        countOfCoincidences(o1.getName(), name);
+            }
+
+            private int countOfCoincidences(String s1, String s2) {
+                int maxCount = 0;
+                for (int i = 0; i < s1.length(); i++) {
+                    int count = 0;
+                    boolean start = false;
+                    for (int j = 0; j < s2.length() && i + j < s1.length(); j++) {
+                        boolean b = s1.toCharArray()[i + j] == s2.toCharArray()[j];
+                        if (b && !start) {
+                            start = true;
+                            count++;
+                        } else if (!b && start) {
+                            break;
+                        } else if (b) {
+                            count++;
+                        }
+                    }
+                    maxCount = Math.max(maxCount, count);
+                }
+                return maxCount;
+            }
+        });
+        model.addAttribute("clientList", clientList);
         return "clients";
     }
 
@@ -388,7 +448,7 @@ public class MainController {
         }
 
         int percent = (int) (creditAmount * interestRateMonth);
-        int creditBody = paymentAmount - percent;
+        int creditBody = creditAmount - percent;
         Calendar creditDateNewInstance = (Calendar) creditDate.clone();
         creditDateNewInstance.add(Calendar.MONTH, timeInMonth);
 
@@ -489,5 +549,31 @@ public class MainController {
                 Integer.parseInt(dateString[2])
         );
         return creditDate.before(Calendar.getInstance());
+    }
+
+    private void autoDelete() {
+        List<LoanOffer> loanOfferList = loanOfferService.findAll();
+        for (LoanOffer loanOffer : loanOfferList) {
+            if (
+                    paymentService.read(loanOffer.getPayments_graph()[0]).get().getPayment_date().before(Calendar.getInstance()) &&
+                            (
+                                    loanOffer.getAdmin_confirm() == null ||
+                                            !loanOffer.getAdmin_confirm() ||
+                                            loanOffer.getClient_confirm() == null ||
+                                            !loanOffer.getClient_confirm()
+                            )
+            ) {
+                loanOfferService.delete(loanOffer);
+                for (UUID uuid : loanOffer.getPayments_graph()) {
+                    paymentService.delete(paymentService.read(uuid).get());
+                }
+            } else if (paymentService.read(loanOffer.getPayments_graph()[loanOffer.getPayments_graph().length - 1]).get().getPayment_date().before(Calendar.getInstance())) {
+                loanOfferService.delete(loanOffer);
+                for (UUID uuid : loanOffer.getPayments_graph()) {
+                    paymentService.delete(paymentService.read(uuid).get());
+                }
+                bankService.delete(bankService.read(new Bank.BankId(loanOffer.getLoanOfferId().client_id(), loanOffer.getLoanOfferId().credit_id())).get());
+            }
+        }
     }
 }

@@ -34,4 +34,8 @@ public class CreditService {
     public List<Credit> findAll() {
         return creditDAO.findAll();
     }
+
+    public boolean idExistInDatabase(UUID uuid) {
+        return read(uuid).isPresent();
+    }
 }

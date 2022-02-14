@@ -14,12 +14,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .disable()
                 .authorizeRequests()
                 .antMatchers("/registration").permitAll()
-                /*.antMatchers().hasAuthority("user")*/
-                /*.antMatchers().hasAuthority("admin")*/
-                .antMatchers("/").authenticated()
+                .antMatchers("/changePassword", "/changeClientData").hasAuthority("user")
+                .antMatchers("/credits", "/clients", "/createNewCredit").hasAuthority("admin")
+                .antMatchers("/**").authenticated()
                 .and()
-                .formLogin().loginPage("/login")
+                .formLogin().loginPage("/login").permitAll()
                 .and()
-                .logout();
+                .logout().permitAll();
     }
 }

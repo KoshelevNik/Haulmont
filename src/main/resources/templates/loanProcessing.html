@@ -6,8 +6,9 @@
 </head>
 <body>
 <form method="post" action="/loanProcessing">
-    <select th:if="${showCreditNameSelect}" name="creditName">
-        <option></option>
+    <input type="hidden" th:if="${showCreditNameSelect}" name="clientId" th:value="${clientId}">
+    <select th:if="${showCreditNameSelect}" name="creditId">
+        <option th:each="v : ${allCredits}" th:text="${v.getName()}" th:value="${v.getId().toString()}"></option>
     </select>
     <input th:unless="${showCreditNameSelect}" type="hidden" name="creditId" th:value="${creditId}">
     <input type="number" name="creditAmount" placeholder="Сумма кредита" th:value="${creditAmountValue}">
@@ -19,7 +20,7 @@
     <input type="number" name="time" placeholder="Срок (кол-во лет)" th:value="${timeValue}">
     <span th:text="${timeError}"></span>
     <br>
-    <input type="number" name="interestRate" placeholder="Процентная ставка" th:value="${interestRateValue}">
+    <input type="number" name="interestRate" placeholder="Процентная ставка" th:value="${interestRateValue}" step="0.1">
     <span th:text="${interestRateError}"></span>
     <br>
     <select name="creditType">

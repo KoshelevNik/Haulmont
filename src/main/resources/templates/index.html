@@ -25,17 +25,17 @@
 
 <div th:if="${user.getRole().equals('admin')}">
     <a href="/clients">Пользователи</a>
-    <a href="/loanOffers">Корзина</a>
-    <a href="/loanOffers">Подтвержденные</a>
+    <a href="/loanOffers?canceled">Корзина</a>
+    <a href="/loanOffers?confirmed">Подтвержденные</a>
     <a href="/credits">Кредиты</a>
     <form method="post" action="/">
         <table>
             <tr>
                 <th>Название</th>
                 <th>Пользователь</th>
-                <th>Сумма</th>
+                <th>Сумма(руб.)</th>
                 <th>Дата выдачи</th>
-                <th>Процентная ставка</th>
+                <th>Процентная ставка(%)</th>
                 <th>График платежей</th>
                 <th></th>
             </tr>

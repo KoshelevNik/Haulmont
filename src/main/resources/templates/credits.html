@@ -6,20 +6,21 @@
 </head>
 <body>
 <form method="post" action="/credits">
+    <a href="/">На главную</a><br>
     <input type="text" placeholder="Поиск..." name="name">
-    <input type="submit" value="Найти">
+    <input type="submit" value="Найти" name="search">
 
     <br>
 
-    <input type="submit" value="Создать">
+    <a href="/createNewCredit">Создать</a><br>
 
-    <div>
-        <p></p>
-        <span></span>
-        <span></span>
+    <div th:each="v : ${creditList}">
+        <p th:text="${v.getName()}"></p>
+        <span th:text="${'Лимит: ' + v.getLimit() + 'руб.'}"></span>
+        <span th:text="${'Процентная ставка: ' + v.getInterest_rate() + '%'}"></span>
 
-        <input type="submit" value="Удалить">
-        <input type="submit" value="Изменить">
+        <input type="submit" value="Удалить" th:name="${'delete='+v.getId().toString()}">
+        <input type="submit" value="Изменить" th:name="${'update='+v.getId().toString()}">
     </div>
 </form>
 </body>

@@ -13,11 +13,12 @@
             <th>График платежей</th>
             <th>Пользовательское подтверждение</th>
             <th>Банковское подтверждение</th>
+            <th>Имя пользователя</th>
             <th></th>
         </tr>
         <tr th:each="v : ${myLoanOffers}">
             <td th:text="${v.name()}"></td>
-            <td><input type="submit" value="Посмотреть" th:name="${'pg=' + v.creditId() + '=' + clientId}"></td>
+            <td><input type="submit" value="Посмотреть" th:name="${'pg=' + v.creditId() + '=' + v.clientId}"></td>
 
             <td th:if="${v.clientConfirm().equals('null')}">Не указано</td>
             <td th:if="${v.clientConfirm().equals('false')}">Не подтвержден</td>
@@ -26,6 +27,8 @@
             <td th:if="${v.adminConfirm().equals('null')}">Не указано</td>
             <td th:if="${v.adminConfirm().equals('false')}">Не подтвержден</td>
             <td th:if="${v.adminConfirm().equals('true')}">Подтвержден</td>
+
+            <td th:text="${v.clientName()}"></td>
 
             <td>
                 <div th:if="${role.equals('user')}">
@@ -37,10 +40,10 @@
                 </div>
                 <div th:if="${role.equals('admin')}">
                     <input th:if="${v.adminConfirm().equals('null') || !v.adminConfirm().equals('true')}"
-                           type="submit" value="Подтвердить" th:name="${'confirm=' + v.creditId() + '=' + clientId}">
+                           type="submit" value="Подтвердить" th:name="${'confirm=' + v.creditId() + '=' + v.clientId}">
                     <br>
                     <input th:if="${v.adminConfirm().equals('null') || (!v.clientConfirm().equals('true') && v.adminConfirm().equals('true'))}"
-                           type="submit" value="Отменить" th:name="${'cancel=' + v.creditId() + '=' + clientId}">
+                           type="submit" value="Отменить" th:name="${'cancel=' + v.creditId() + '=' + v.clientId}">
                 </div>
             </td>
         </tr>

@@ -6,16 +6,16 @@
 </head>
 <body>
 <form method="post" action="/clients">
+    <a href="/">На главную</a><br>
     <input type="text" placeholder="Поиск..." name="name">
     <input type="submit" value="Найти">
 
-    <div>
-        <p></p>
-        <span></span>
-        <span></span>
-        <span></span>
+    <div th:each="v : ${clientList}">
+        <p th:text="${'ФИО: ' + v.getName()}"></p>
+        <span th:text="${'Телефон: ' + v.getPhone()}"></span>
+        <span th:text="${'Номер паспорта: ' + v.getPassport_id()}"></span>
 
-        <a href="/profile">Посмотреть профиль</a>
+        <a th:href="${'/profile?clientId=' + v.getClient_id().toString()}">Посмотреть профиль</a>
     </div>
 </form>
 </body>

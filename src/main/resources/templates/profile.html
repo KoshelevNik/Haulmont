@@ -6,9 +6,9 @@
 </head>
 <body>
 <p th:text="${client.getName()}"></p>
-<p th:text="${client.getPhone()}"></p>
-<p th:text="${user.getMail()}"></p>
-<p th:text="${client.getPassport_id()}"></p>
+<p th:text="${'Телефон: ' + client.getPhone()}"></p>
+<p th:text="${'Почта: ' + user.getMail()}"></p>
+<p th:text="${'Номер паспорта: ' + client.getPassport_id()}"></p>
 <a href="/">На главную</a><br>
 <a href="/myCredits" th:unless="${isAdmin}">Мои кредиты</a><br>
 <a th:href="${'/myCredits?clientIdOptional='+user.getId()}" th:if="${isAdmin}">Кредиты пользователя</a><br>
@@ -16,6 +16,6 @@
 <a href="/changeClientData" th:unless="${isAdmin}">Сменить клиентские даннные</a><br>
 <a href="/loanOffers" th:unless="${isAdmin}">Мои кредитные предложения</a><br>
 <a th:href="${'/loanOffers?clientIdOptional='+user.getId()}" th:if="${isAdmin}">Кредитные предложения пользователя</a><br>
-<a href="/loanProcessing" th:if="${isAdmin}">Создать кредитное предложение</a>
+<a th:href="${'/loanProcessing?id='+user.getId()}" th:if="${isAdmin && !creditsIsEmpty}">Создать кредитное предложение</a>
 </body>
 </html>
